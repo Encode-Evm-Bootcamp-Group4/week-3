@@ -28,18 +28,17 @@ async function main() {
     const contract = getContract({
         address: contractAddress as `0x${string}`,
         abi,
-        publicClient,
-        walletClient: acc2,
+        client: publicClient,
     });
 
     // Check initial balance
-    const balanceBN = await contract.read.balanceOf([acc2.account.address] as const);
+    const balanceBN = await contract.read.balanceOf([acc2.account.address] as const) as bigint;
     console.log(
         `Initial balance for ${acc2.account.address}: ${balanceBN.toString()} tokens\n`
     );
 
     // Check voting power before delegation
-    const votesBefore = await contract.read.getVotes([acc2.account.address] as const);
+    const votesBefore = await contract.read.getVotes([acc2.account.address] as const) as bigint;
     console.log(
         `Account ${acc2.account.address} has ${votesBefore.toString()} units of voting power before self delegating\n`
     );
@@ -47,7 +46,7 @@ async function main() {
     // Delegate voting power
     const delegateTx = await contract.write.delegate([acc2.account.address] as const);
     await publicClient.waitForTransactionReceipt({ hash: delegateTx });
-    const votesAfter = await contract.read.getVotes([acc2.account.address] as const);
+    const votesAfter = await contract.read.getVotes([acc2.account.address] as const) as bigint;
     console.log(
         `Account ${acc2.account.address} has ${votesAfter.toString()} units of voting power after self delegating\n`
     );
