@@ -21,7 +21,6 @@ contract TokenizedBallot {
         address _tokenContract,
         uint256 _targetBlockNumber
     ) {
-        // TODO: Validate if targetBlockNumber is in the past
         require(_targetBlockNumber < block.number, "TokenizedBallot: Target block number must be in the past");
         tokenContract = IMyToken(_tokenContract);
         targetBlockNumber = _targetBlockNumber;
@@ -31,7 +30,6 @@ contract TokenizedBallot {
     }
 
     function vote(uint256 proposal, uint256 amount) external {
-        // TODO: Implement vote function
         require(getRemainingVotingPower(msg.sender) >= amount, "TokenizedBallot: Voter is trying to vote with more votes than it has");
         votePowerSpent[msg.sender] += amount;
         proposals[proposal].voteCount += amount;
