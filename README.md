@@ -1,113 +1,97 @@
-# Week 3 Homework Solution
+# Week 3 Homework Results
 
-## TestVoteToken.ts
-Script to demonstrate token with voting capabilities: delegation, transfer effects on voting power, and historical voting power queries. 
+### Contract Deployments and Transactions
 
-### Test Flow
+1. **Token Distribution (TokenDistribution.ts)**
+   - MyToken Contract Deployment:
+     - Contract Address: `0x4ec94ebd3ab2499b8d3b42fcb7f4c98cc41cffb5`
+     - Transaction Hash: `0xe50a37bb6a998007fe05a4214271699e7b84c0a4fe42f52078d039b4a1545f03`
+   - Initial Minting:
+     - Amount: 10000000000000000000 tokens to Account 1
+     - Self-delegation: Account 1 received 10000000000000000000 voting power
+   - Token Transfer to Account 2:
+     - Approval Tx Hash: `0xe2fe3350221735ffe824f275ad55d0d42a1b3aaf7a822e8b5affb4f30174df43`
+     - Transfer Tx Hash: `0xf0e8e3cd29c0a3d774ec1cea4721f61b3fa27b0ad6356bd4363d4f6d5eca1210`
+     - Amount: 5000000000000000000 tokens
+   - Final Balances:
+     - Account 1: 5000000000000000000 tokens
+     - Account 2: 5000000000000000000 tokens
 
-1. **Setup**
-   - Deploys a "MyToken" contract
-   - Gets three accounts: deployer, acc1, and acc2
+2. **Account 2 Delegation (Acc2Delegation.ts)**
+   - Initial State:
+     - Balance: 5000000000000000000 tokens
+     - Voting Power: 0
+   - After Self-delegation:
+     - Voting Power: 5000000000000000000
+   - Total Supply: 10000000000000000000 tokens
 
-2. **Initial Token Distribution**
-   - Mints 10 tokens to acc1
-   - Checks acc1's balance
+3. **Ballot Deployment (DeployBallot.ts)**
+   - Contract Address: `0x62c1d30c8be411661e870430793524a75361acba`
+   - Transaction Hash: `0xf5d08bee60f721ee0d2edff0211a27cea28f58d83fb4f6e1f262dbf70a5b99f6`
+   - Target Block: 8016485
+   - Deployer: `0xcE292cB616aE5FcAB4Ea6fcbc7354a748dC00b30`
+   - Proposals: ["Proposal1", "Proposal2", "Proposal3"]
 
-3. **Voting Power Demonstration**
-   - Initially acc1 has 0 voting power despite having tokens
-   - Voting power must be activated through delegation
-   - acc1 self-delegates to get voting power equal to their token balance
+4. **Voting Transactions**
+   - Account 1 Vote:
+     - Proposal Index: 2 (Proposal3)
+     - Transaction Hash: `0x02842137181f5c2bf1b5b1f91f54d6091c1909e86b6fb6f7bf35d9b777465db4`
+     - Block Confirmed: 8016490
+     - Voting Power Used: 5000000000000000000
+   
+   - Account 2 Vote:
+     - Proposal Index: 1 (Proposal2)
+     - Transaction Hash: `0x63c1b4d65d527728e5624e40889236a461232844b66ab6df85b65928c0340e18`
+     - Block Confirmed: 8016496
+     - Voting Power Used: 5000000000000000000
 
-4. **Transfer Effects**
-   - acc1 transfers half their tokens to acc2
-   - Shows how transfer affects voting power:
-     - acc1's voting power decreases
-     - acc2 has no voting power yet (needs to self-delegate)
-     - acc2 then self-delegates to activate their voting power
+5. **Final Results (QueryResults.ts)**
+   Target Block: 8016484
+   
+   Proposal Votes:
+   - Proposal1: 0 votes
+   - Proposal2: 5000000000000000000 votes
+   - Proposal3: 5000000000000000000 votes
+   
+   Winning Proposal: Proposal2 (index 1)
 
-5. **Historical Voting Power**
-   - Demonstrates querying past voting power at different block numbers
-   - Useful for governance snapshots
-   - Shows how voting power changed over time
-
-### Example Output
-```
-Minted 10000000000000000000 decimal units to account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 has 10000000000000000000 decimal units of MyToken
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 has 0 units of voting power before self delegating
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 has 10000000000000000000 units of voting power after self delegating
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 has 5000000000000000000 units of voting power after transferring
-
-Account 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc has 0 units of voting power after receiving a transfer
-
-Account 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc has 5000000000000000000 units of voting power after self delegating
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 had 5000000000000000000 units of voting power at block 4
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 had 10000000000000000000 units of voting power at block 3
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 had 0 units of voting power at block 2
-
-Account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 had 0 units of voting power at block 1
-```
-
-### Contract/Scripts Interaction Flow
-1. **Token Distribution & Initial Setup**
-   - Run `TokenDistribution.ts` to:
-     - Deploy the token contract
-     - Mint tokens to deployer (acc1)
-     - Self-delegate acc1's voting power
-     - Transfer tokens to acc2
-     - Note down the contract address output
-
-2. **Account 2 Setup**
-   - Set the contract address in your `.env` file
-   - Run `Acc2Delegation.ts` to:
-     - Check acc2's token balance
-     - Self-delegate acc2's voting power
-
-3. **Ballot Deployment**
-   - Run `DeployBallot.ts` with:
-     ```bash
-     npx ts-node scripts/DeployBallot.ts "Proposal 1" "Proposal 2" "Proposal 3" <token-contract-address>
-     ```
-   - Note down the ballot contract address output
-
-4. **Voting**
-   - Use `CastVote.ts` to vote on proposals
-   - Each account can vote with their available voting power
-
-5. **Query Results**
-   - Run `QueryResults.ts` to:
-     - Check remaining voting power
-     - View proposal vote counts
-     - See winning proposal
-     - Query historical voting power
+   Voter Status:
+   - Account 1 (`0xcE292cB616aE5FcAB4Ea6fcbc7354a748dC00b30`):
+     - Total Voting Power: 5000000000000000000
+     - Power Spent: 5000000000000000000
+     - Remaining: 0
+   
+   - Account 2 (`0x4a1Cf67D979Cb8c97A3D7a7155D306f8078800c7`):
+     - Total Voting Power: 5000000000000000000
+     - Power Spent: 5000000000000000000
+     - Remaining: 0
 
 ### Environment Setup
 Create a `.env` file with:
 ```
 ALCHEMY_API_KEY=your_api_key
 PRIVATE_KEY=your_private_key
-ACCOUNT2_ADDRESS=address_of_account_2
-CONTRACT_ADDRESS=deployed_token_address
+ACC2_PRIVATEKEY=account2_private_key
+ACCOUNT1_ADDRESS=0xcE292cB616aE5FcAB4Ea6fcbc7354a748dC00b30
+ACCOUNT2_ADDRESS=0x4a1Cf67D979Cb8c97A3D7a7155D306f8078800c7
+MYTOKEN_ADDRESS=0x4ec94ebd3ab2499b8d3b42fcb7f4c98cc41cffb5
+TOKENIZEDBALLOT_ADDRESS=0x62c1d30c8be411661e870430793524a75361acba
 ```
 
-## Report on Script Results
+### Script Execution Commands
+```bash
+# 1. Deploy token and distribute
+npx hardhat run ./scripts/TokenDistribution.ts
 
-- npx hardhat run ./scripts/TokenDistribution.ts
+# 2. Setup Account 2 delegation
+npx hardhat run ./scripts/Acc2Delegation.ts
 
-Deploying MyToken contract
-Transaction hash: 0x9e570984ec0d5bda18043fbe863117d5757f0465ebd30788ec0862a1b3ea4c7a
-MyToken contract deployed to: 0xda2960ca1daad3700d6a7a09df998d51538c74ab
-Minted 10000000000000000000 tokens to 0xcE292cB616aE5FcAB4Ea6fcbc7354a748dC00b30
-Account 0xcE292cB616aE5FcAB4Ea6fcbc7354a748dC00b30 has 10000000000000000000 units of voting power after self delegating
+# 3. Deploy ballot with proposals
+PROPOSALS=Proposal1,Proposal2,Proposal3 npx hardhat run ./scripts/DeployBallot.ts
 
-Transferred 5000000000000000000 tokens to 0x4be7F17291d3194b33edE62D177B5294234d8AA2
+# 4. Cast votes
+PROPOSAL_INDEX=2 npx hardhat run ./scripts/CastVote.ts  # Account 1 vote
+PROPOSAL_INDEX=1 npx hardhat run ./scripts/CastVote.ts  # Account 2 vote
 
-Contract address for acc2 to use: 0xda2960ca1daad3700d6a7a09df998d51538c74ab
-
+# 5. Query results
+npx ts-node scripts/QueryResults.ts <VOTER_ADDRESS>

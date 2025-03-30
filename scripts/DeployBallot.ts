@@ -7,18 +7,16 @@ dotenv.config();
 
 const providerApiKey = process.env.ALCHEMY_API_KEY || "";
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
+const proposalsString = process.env.PROPOSALS || "";
+const tokenAddress = process.env.MYTOKEN_ADDRESS || "";
 
 async function main() {
-  const proposals = process.argv.slice(2);
-  if (proposals.length < 2)
-    throw new Error("Parameters not provided. Expected: proposals... tokenContractAddress");
+  const proposals = proposalsString.split(',');
+  if (!tokenAddress) 
+    throw new Error("TOKEN_ADDRESS not provided in environment");
+  if (!proposalsString || proposals.length < 1)
+    throw new Error("PROPOSALS not provided in environment. Expected: comma-separated proposals");
   
-  // Get token contract address (last argument)
-  const tokenContractAddress = proposals.pop() as Address;
-  
-  if (proposals.length < 1)
-    throw new Error("Proposals not provided");
-
   const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
@@ -49,7 +47,7 @@ async function main() {
     bytecode: bytecode as `0x${string}`,
     args: [
       proposals.map((prop) => toHex(prop, { size: 32 })),
-      tokenContractAddress,
+      tokenAddress as Address,
       targetBlockNumber
     ],
   });

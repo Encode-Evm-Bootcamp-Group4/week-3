@@ -6,8 +6,8 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const providerApiKey = process.env.ALCHEMY_API_KEY || "";
-const acc2PrivateKey = process.env.PRIVATE_KEY || ""; // acc2 will use their private key
-const contractAddress = process.env.CONTRACT_ADDRESS || ""; // Will need to be provided by deployer
+const acc2PrivateKey = process.env.ACC2_PRIVATEKEY || ""; // acc2 will use their private key
+const contractAddress = process.env.MYTOKEN_ADDRESS || ""; // Will need to be provided by deployer
 
 async function main() {
     // Setup clients
@@ -28,7 +28,7 @@ async function main() {
     const contract = getContract({
         address: contractAddress as `0x${string}`,
         abi,
-        client: publicClient,
+        client: acc2,
     });
 
     // Check initial balance
@@ -37,14 +37,22 @@ async function main() {
         `Initial balance for ${acc2.account.address}: ${balanceBN.toString()} tokens\n`
     );
 
+    // Debug logs
+    const totalSupply = await contract.read.totalSupply() as bigint;
+    const acc1Balance = await contract.read.balanceOf(['0xcE292cB616aE5FcAB4Ea6fcbc7354a748dC00b30'] as const) as bigint;
+    console.log('Total supply:', totalSupply.toString());
+    console.log('Acc1 balance:', acc1Balance.toString());
+
     // Check voting power before delegation
     const votesBefore = await contract.read.getVotes([acc2.account.address] as const) as bigint;
     console.log(
         `Account ${acc2.account.address} has ${votesBefore.toString()} units of voting power before self delegating\n`
     );
 
-    // Delegate voting power
-    const delegateTx = await contract.write.delegate([acc2.account.address] as const);
+    // Delegate voting power 
+    const delegateTx = await contract.write.delegate([acc2.account.address] as const, {
+        account: acc2.account,
+    });
     await publicClient.waitForTransactionReceipt({ hash: delegateTx });
     const votesAfter = await contract.read.getVotes([acc2.account.address] as const) as bigint;
     console.log(
